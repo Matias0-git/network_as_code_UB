@@ -1,0 +1,111 @@
+# Implementation Plan
+
+- [x] 1. Create project structure and base documentation
+  - Create the complete folder structure: modules/{vpc,subnet,firewall,routes}/ and environments/{dev,prod}/
+  - Create README.md with project overview, prerequisites, folder structure, authentication setup, and usage instructions
+  - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6, 9.1, 9.2, 9.3, 9.4, 9.5, 9.6_
+
+- [ ] 2. Implement VPC module
+  - [ ] 2.1 Create VPC module Terraform files
+    - Write modules/vpc/variables.tf with project_id, network_name, routing_mode, and auto_create_subnetworks variables
+    - Write modules/vpc/main.tf with google_compute_network resource using variables
+    - Write modules/vpc/outputs.tf exporting network_self_link and network_name
+    - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
+  - [ ]* 2.2 Write property test for VPC module configuration correctness
+    - **Property 1: VPC Module Configuration Correctness**
+    - **Validates: Requirements 1.1, 1.2, 1.3, 1.5**
+
+- [ ] 3. Implement Subnet module
+  - [ ] 3.1 Create Subnet module Terraform files
+    - Write modules/subnet/variables.tf with project_id, network_name, and subnets map variable
+    - Write modules/subnet/main.tf with google_compute_subnetwork resource using for_each on subnets map
+    - Write modules/subnet/outputs.tf exporting subnet_self_links map
+    - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6_
+  - [ ]* 3.2 Write property test for subnet resource count
+    - **Property 2: Subnet Module Creates Correct Number of Resources**
+    - **Validates: Requirements 2.1**
+  - [ ]* 3.3 Write property test for subnet configuration round-trip
+    - **Property 3: Subnet Configuration Round-Trip**
+    - **Validates: Requirements 2.2, 2.3, 2.4**
+  - [ ]* 3.4 Write property test for subnet network reference format
+    - **Property 4: Subnet Network Reference Format**
+    - **Validates: Requirements 2.6**
+  - [ ]* 3.5 Write property test for subnet output structure
+    - **Property 5: Subnet Module Output Structure**
+    - **Validates: Requirements 2.5**
+
+- [ ] 4. Implement Firewall module
+  - [ ] 4.1 Create Firewall module Terraform files
+    - Write modules/firewall/variables.tf with project_id, network_name, and firewall_rules map variable
+    - Write modules/firewall/main.tf with google_compute_firewall resource using for_each, conditional logic for INGRESS/EGRESS, and dynamic allow blocks
+    - Write modules/firewall/outputs.tf exporting firewall_rule_self_links map
+    - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6_
+  - [ ]* 4.2 Write property test for firewall resource count
+    - **Property 6: Firewall Module Creates Correct Number of Resources**
+    - **Validates: Requirements 3.1**
+  - [ ]* 4.3 Write property test for firewall direction logic
+    - **Property 7: Firewall Direction Determines Range Type**
+    - **Validates: Requirements 3.2, 3.3**
+  - [ ]* 4.4 Write property test for firewall allow rules preservation
+    - **Property 8: Firewall Allow Rules Preservation**
+    - **Validates: Requirements 3.4**
+  - [ ]* 4.5 Write property test for firewall output structure
+    - **Property 9: Firewall Module Output Structure**
+    - **Validates: Requirements 3.6**
+
+- [ ] 5. Implement Routes module
+  - [ ] 5.1 Create Routes module Terraform files
+    - Write modules/routes/variables.tf with project_id, network_name, and routes map variable
+    - Write modules/routes/main.tf with google_compute_route resource using for_each and conditional next_hop logic
+    - Write modules/routes/outputs.tf exporting route_self_links map
+    - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6_
+  - [ ]* 5.2 Write property test for routes resource count
+    - **Property 10: Routes Module Creates Correct Number of Resources**
+    - **Validates: Requirements 4.1**
+  - [ ]* 5.3 Write property test for route configuration round-trip
+    - **Property 11: Route Configuration Round-Trip**
+    - **Validates: Requirements 4.2**
+  - [ ]* 5.4 Write property test for route next hop selection
+    - **Property 12: Route Next Hop Selection**
+    - **Validates: Requirements 4.3, 4.4**
+  - [ ]* 5.5 Write property test for routes output structure
+    - **Property 13: Routes Module Output Structure**
+    - **Validates: Requirements 4.6**
+
+- [ ] 6. Implement dev environment configuration
+  - [ ] 6.1 Create dev environment Terraform files
+    - Write environments/dev/providers.tf with terraform and google provider configuration
+    - Write environments/dev/backend.tf with commented GCS backend template
+    - Write environments/dev/variables.tf declaring all required variables
+    - Write environments/dev/main.tf invoking all four modules with proper dependency wiring
+    - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 6.1, 6.2, 6.4, 6.5, 7.1, 7.2, 7.3_
+  - [ ] 6.2 Create dev environment example configuration
+    - Write environments/dev/terraform.tfvars with example values for project_id, network_name, region, zone
+    - Include at least 2 example subnets in different regions with non-overlapping CIDR ranges
+    - Include at least 2 example firewall rules (one INGRESS, one EGRESS)
+    - Include at least 1 example custom route
+    - _Requirements: 10.1, 10.2, 10.3, 10.4_
+
+- [ ] 7. Implement prod environment configuration
+  - [ ] 7.1 Create prod environment Terraform files
+    - Write environments/prod/providers.tf with terraform and google provider configuration
+    - Write environments/prod/backend.tf with commented GCS backend template (different prefix)
+    - Write environments/prod/variables.tf declaring all required variables
+    - Write environments/prod/main.tf invoking all four modules with proper dependency wiring
+    - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 6.1, 6.2, 6.4, 6.5, 7.1, 7.2, 7.3_
+  - [ ] 7.2 Create prod environment example configuration
+    - Write environments/prod/terraform.tfvars with production-appropriate values
+    - Include at least 2 example subnets in different regions with CIDR ranges that don't overlap with dev
+    - Include at least 2 example firewall rules (one INGRESS, one EGRESS)
+    - Include at least 1 example custom route
+    - _Requirements: 10.5_
+  - [ ]* 7.3 Write property test for environment CIDR non-overlap
+    - **Property 14: Environment CIDR Non-Overlap**
+    - **Validates: Requirements 10.6**
+
+- [ ] 8. Final validation and documentation
+  - Run terraform fmt on all .tf files to ensure consistent formatting
+  - Run terraform validate in both dev and prod environments to verify syntax
+  - Update README.md with any additional notes discovered during implementation
+  - Verify all example configurations use placeholder project IDs that users must replace
+  - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5, 9.6_
