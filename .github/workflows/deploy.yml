@@ -6,6 +6,12 @@ on:
       - "main"
 
 env:
+  # Terraform Variables (Must start with TF_VAR_)
+  TF_VAR_project_id: "network-as-code"  # <--- THIS FIXES THE ERROR
+  TF_VAR_environment: "dev"
+  TF_VAR_region: "us-central1"
+  
+  # Workflow Variables
   PROJECT_ID: "network-as-code"
   TF_VERSION: "1.5.0"
 
@@ -21,20 +27,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 1. Authenticate FIRST (This was the fix)
+      # 1. Authenticate
       - id: 'auth'
         name: 'Authenticate to Google Cloud'
         uses: 'google-github-actions/auth@v1'
         with:
           credentials_json: '${{ secrets.GCLOUD_SERVICE_ACCOUNT_KEY }}'
 
-      # 2. THEN setup the SDK (It will now use the auth from step 1)
+      # 2. Setup SDK
       - name: Setup Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
         with:
           version: 'latest'
           project_id: ${{ env.PROJECT_ID }}
 
+      # 3. Setup Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
