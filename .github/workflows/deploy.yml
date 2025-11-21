@@ -21,16 +21,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 1. Authenticate FIRST (This was the fix)
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GCLOUD_SERVICE_ACCOUNT_KEY }}'
+
+      # 2. THEN setup the SDK (It will now use the auth from step 1)
       - name: Setup Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
         with:
           version: 'latest'
           project_id: ${{ env.PROJECT_ID }}
-
-      - name: Auth with Service Account
-        uses: google-github-actions/auth@v1
-        with:
-          credentials_json: '${{ secrets.GCLOUD_SERVICE_ACCOUNT_KEY }}'
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
