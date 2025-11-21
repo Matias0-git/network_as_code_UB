@@ -1,0 +1,25 @@
+# Local .terraform directories (plugins)
+**/.terraform/*
+
+# .tfstate files (contains your infrastructure brain/secrets)
+*.tfstate
+*.tfstate.*
+
+# Crash log files
+crash.log
+
+# Variable files (contains sensitive project IDs or settings)
+*.tfvars
+*.tfvars.json
+
+# CLI configuration files
+.terraformrc
+terraform.rc
+
+# YOUR SPECIFIC KEY FILE (Most Important!)
+terraform-sa-key.json
+
+# Editor files (optional but good practice)
+.vscode/
+.idea/
+.DS_Store
